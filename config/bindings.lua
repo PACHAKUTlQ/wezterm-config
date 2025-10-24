@@ -25,8 +25,8 @@ local keys = {
       mods = 'NONE',
       action = act.ShowLauncherArgs({ flags = 'FUZZY|WORKSPACES' }),
    },
-   { key = 'F11', mods = 'NONE',    action = act.ToggleFullScreen },
-   { key = 'F12', mods = 'NONE',    action = act.ShowDebugOverlay },
+   { key = 'F11', mods = 'NONE', action = act.ToggleFullScreen },
+   { key = 'F12', mods = 'NONE', action = act.ShowDebugOverlay },
    { key = 'f',   mods = 'CTRL', action = act.Search({ CaseInSensitiveString = '' }) },
    {
       key = 'u',
