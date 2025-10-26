@@ -1,5 +1,4 @@
 local wezterm = require('wezterm')
-local mux = wezterm.mux
 
 ---@class Config
 ---@field options table
@@ -9,11 +8,6 @@ Config.__index = Config
 ---Initialize Config
 ---@return Config
 function Config:init()
-   wezterm.on('gui-startup', function(cmd)
-      local tab, pane, window = mux.spawn_window(cmd or {})
-      window:gui_window():maximize()
-   end)
-
    local config = setmetatable({ options = {} }, self)
    return config
 end
