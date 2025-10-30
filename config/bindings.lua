@@ -156,7 +156,7 @@ local keys = {
    },
    {
       key = 'b',
-      mods = mod.SUPER,
+      mods = mod.SUPER_REV,
       action = wezterm.action_callback(function(window, _pane)
          backdrops:toggle_focus(window)
       end)
