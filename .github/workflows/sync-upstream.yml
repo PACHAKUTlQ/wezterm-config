@@ -1,0 +1,84 @@
+# A GitHub Action to sync a detached fork with its upstream repository.
+name: Sync with Upstream
+
+on:
+  # Schedule to run on the 1st day of every month at 02:00 UTC.
+  # You can use https://crontab.guru/ to customize the schedule.
+  schedule:
+    - cron: "0 2 1 * *"
+
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your repository
+        uses: actions/checkout@v4
+        with:
+          # This is the name of the secret you will create in your repository settings.
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/KevinSilvester/wezterm-config.git
+
+      - name: Fetch from upstream
+        run: git fetch upstream
+
+      # Create a local sync branch from the upstream's master branch.
+      - name: Create local sync branch from upstream's master branch
+        run: git checkout -b sync-upstream upstream/master
+
+      - name: Force-push sync branch to your repo (origin)
+        run: git push -f origin sync-upstream
+
+      - name: Create Pull Request
+        uses: actions/github-script@v7
+        with:
+          # Use the PAT again for API requests.
+          github-token: ${{ secrets.GH_PAT }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = 'sync-upstream';
+            const base = 'master';
+
+            // Check if there's already an open PR for this.
+            const { data: pulls } = await github.rest.pulls.list({
+              owner, repo, head: `${owner}:${head}`, base: base, state: 'open'
+            });
+
+            if (pulls.length > 0) {
+              core.info(`A pull request from ${head} to ${base} already exists. Nothing to do.`);
+              return;
+            }
+
+            // Check if there are any actual differences between the branches.
+            const { data: comparison } = await github.rest.repos.compareCommits({
+              owner, repo, base, head
+            });
+
+            if (comparison.total_commits === 0) {
+              core.info(`The ${head} branch is already up-to-date with ${base}. Nothing to do.`);
+              return;
+            }
+
+            const pr = await github.rest.pulls.create({
+              owner,
+              repo,
+              head,
+              base,
+              title: `[AUTO] Sync with upstream repository`,
+              body: `
+                This PR was automatically created by a GitHub Action.
+                It brings in the latest changes from the upstream repository's \`${base}\` branch.
+
+                Please review the changes before merging.
+              `
+            });
+            core.info(`Successfully created PR #${pr.data.number}`);
