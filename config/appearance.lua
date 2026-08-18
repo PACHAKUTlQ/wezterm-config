@@ -3,6 +3,7 @@ local backdrops = require('utils.backdrops')
 local colors = require('colors.custom')
 local fonts = require('config.fonts')
 
+---@type Config
 return {
    max_fps = 120,
    enable_wayland = true,
@@ -25,7 +26,7 @@ return {
    colors = colors,
 
    -- background: pass in `true` if you want wezterm to start with focus mode on (no bg images)
-   background = backdrops:initial_options(false),
+   background = backdrops:initial_options({ no_img = false }),
 
    -- scrollbar
    enable_scroll_bar = true,
