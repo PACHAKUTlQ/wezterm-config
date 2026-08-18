@@ -227,6 +227,12 @@ local keys = {
          timeout_milliseconds = 1000,
       }),
    },
+   -- CTRL-SHIFT-l activates the debug overlay
+   {
+      key = 'L',
+      mods = 'CTRL',
+      action = wezterm.action.ShowDebugOverlay
+   },
 }
 
 -- stylua: ignore
